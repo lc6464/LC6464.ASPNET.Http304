@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<SignAssembly>True</SignAssembly>
+		<AssemblyOriginatorKeyFile>key.snk</AssemblyOriginatorKeyFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Description>在 ASP.NET 中用于快速获取设置 HTTP 304 状态码的服务。</Description>
+		<Copyright>Copyright © 2022 LC. All rights reserved.</Copyright>
+		<PackageProjectUrl>https://github.com/lc6464/LC6464.ASPNET.Http304</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/lc6464/LC6464.ASPNET.Http304</RepositoryUrl>
+		<PackageTags>ASP.NET;HTTP;HTTP304;Cache</PackageTags>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<Authors>LC</Authors>
+		<Version>1.0.0.0</Version>
+		<PackageReleaseNotes>初步实现功能。</PackageReleaseNotes>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="LC6464.ASPNET.HttpConnectionInfo" Version="1.0.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<Using Include="System.Net" />
+		<Using Include="System.Text" />
+		<Using Include="System.Security.Cryptography" />
+		<Using Include="Microsoft.Extensions.Logging" />
+		<Using Include="Microsoft.Extensions.Primitives" />
+		<Using Include="Microsoft.AspNetCore.Http" />
+		<Using Include="Microsoft.Extensions.DependencyInjection" />
+		<Using Include="LC6464.ASPNET.HttpConnectionInfo" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Update="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+</Project>
