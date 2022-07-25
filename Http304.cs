@@ -53,15 +53,15 @@ public class Http304 : IHttp304 {
 			clientETagHeaders = Request.Headers.IfNoneMatch;
 		_logger.LogDebug("验证 HTTP 协商缓存是否有效，客户端 If-Modified-Since: {}, 客户端 If-None-Match: {}.", clientLastModifiedHeaders, clientETagHeaders);
 		if (clientETagHeaders.Count == 1 && clientLastModifiedHeaders.Count == 1 && clientETagHeaders[0].Length == 50 && clientLastModifiedHeaders[0] == _lastModified) {
-			
-			using SHA256 sha256 = SHA256.Create();
+
+			using var sha256 = SHA256.Create();
 			var clientETag = clientETagHeaders[0].AsSpan(1, 48);
 			ReadOnlySpan<char> clientSHA256 = string.Concat(clientETag[..22], clientETag[27..]),
 				clientSalt = clientETag[22..27];
 
-			byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(string.Concat(ip, clientSalt, value)));
+			var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(string.Concat(ip, clientSalt, value)));
 			var computedHash = Convert.ToBase64String(hash)[..43];
-			
+
 			_logger.LogDebug("HTTP 协商缓存初步检查有效，计算得到的 SHA256: {}.", computedHash);
 
 			return clientSHA256.ToString() == computedHash;
@@ -76,16 +76,19 @@ public class Http304 : IHttp304 {
 	/// <param name="value">附加字符</param>
 	/// <returns>若已设置，则返回 <see langword="true"/>；否则返回 <see langword="false"/> 并向客户端输出相关响应头。</returns>
 	public bool TrySet(bool withIP = false, string value = "") {
-		bool isValid = IsValid(withIP, value);
+		var isValid = IsValid(withIP, value);
 
 		if (!isValid) { // 若无效
 			ReadOnlySpan<char> ip = withIP ? _info.RemoteAddress?.ToString() ?? "" : "";
 
-			string charList = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()_+{}|:<>?-=[];',./"; // Salt 中可包含的字符列表
+			var charList = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()_+{}|:<>?-=[];',./"; // Salt 中可包含的字符列表
 			StringBuilder sb = new();
-			for (int i = 0; i < 5; i++) sb.Append(charList[Random.Shared.Next(charList.Length)]);
+			for (var i = 0; i < 5; i++) {
+				_ = sb.Append(charList[Random.Shared.Next(charList.Length)]);
+			}
+
 			ReadOnlySpan<char> salt = sb.ToString();
-			sb.Clear();
+			_ = sb.Clear();
 
 			using var sha256 = SHA256.Create();
 			ReadOnlySpan<char> hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(string.Concat(ip, salt, value))));
