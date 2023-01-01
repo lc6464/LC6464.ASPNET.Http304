@@ -52,14 +52,13 @@ public class Http304 : IHttp304 {
 		StringValues clientLastModifiedHeaders = Request.Headers.IfModifiedSince,
 			clientETagHeaders = Request.Headers.IfNoneMatch;
 		_logger.LogDebug("验证 HTTP 协商缓存是否有效，客户端 If-Modified-Since: {}, 客户端 If-None-Match: {}.", clientLastModifiedHeaders, clientETagHeaders);
-		if (clientETagHeaders.Count == 1 && clientLastModifiedHeaders.Count == 1 && clientETagHeaders[0].Length == 50 && clientLastModifiedHeaders[0] == _lastModified) {
-
-			using var sha256 = SHA256.Create();
+		if (clientETagHeaders.Count == 1 && clientLastModifiedHeaders.Count == 1 && clientETagHeaders[0]!.Length == 50 && clientLastModifiedHeaders[0] == _lastModified) {
 			var clientETag = clientETagHeaders[0].AsSpan(1, 48);
+
 			ReadOnlySpan<char> clientSHA256 = string.Concat(clientETag[..22], clientETag[27..]),
 				clientSalt = clientETag[22..27];
 
-			var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(string.Concat(ip, clientSalt, value)));
+			var hash = SHA256.HashData(Encoding.UTF8.GetBytes(string.Concat(ip, clientSalt, value)));
 			var computedHash = Convert.ToBase64String(hash)[..43];
 
 			_logger.LogDebug("HTTP 协商缓存初步检查有效，计算得到的 SHA256: {}.", computedHash);
@@ -89,9 +88,7 @@ public class Http304 : IHttp304 {
 
 			ReadOnlySpan<char> salt = sb.ToString();
 			_ = sb.Clear();
-
-			using var sha256 = SHA256.Create();
-			ReadOnlySpan<char> hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(string.Concat(ip, salt, value))));
+			ReadOnlySpan<char> hash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(string.Concat(ip, salt, value))));
 
 			Response.Headers.Add("Last-Modified", _lastModified);
 			Response.Headers.Add("ETag", $"\"{string.Concat(hash[..22], salt, hash[22..43])}\"");

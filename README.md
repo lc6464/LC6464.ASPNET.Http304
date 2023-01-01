@@ -10,13 +10,13 @@
 ``` xml
 <Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<!-- 一些东西 -->
 	</PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="LC6464.ASPNET.Http304" Version="1.0.0" />
+		<PackageReference Include="LC6464.ASPNET.Http304" Version="1.1.0" />
 		<!-- PackageReference，请使用 Visual Studio 或 dotnet cli 等工具添加 -->
 	</ItemGroup>
 	<ItemGroup>
